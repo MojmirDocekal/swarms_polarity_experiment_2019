@@ -1,63 +1,67 @@
+<?xml version=“1.0” encoding=“utf-8”?>
+<!DOCTYPE html
+ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+ <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" lang="cs">
+<head>
+<meta charset="UTF-8">
+</head>
+
 <div style="width: 40em;">
-<p>
-This experiment has two parts. In the first part, you will be required to read
-a number of English sentences one word at a time. You can advance to the next
-word by pressing the space bar.
-</p>
-<p>
-In the second part, you will be asked to &ldquo;rate&rdquo; some sentences
-on a scale of 1-7 (with 1 bad and 7 good).
-</p>
-<p>
-[Privacy statement, etc., etc.]
-</p>
+
+<p>Milí studenti,</p>
+<p>účelem tohoto experimentu je zjistit, jaké (jako rodilí
+mluvčí) máte intuice o  významech některých českých vět a jejich vhodnosti v daném kontextu. V experimentu budete odpovídat na to, zda mluvčí (vždy pojmenovaný vlastním jménem 'Aleš') správně pochopil jistou informaci a zda se jeho správné pochopení odráží ve větě, kterou po přečtení dané informace pronese.
+
+<p>Dále, i když po vás ve formuláři pod tímto textem požadujeme
+jméno a ISové číslo, tyto údaje budou použity jen pro účely
+získání bodů v předmětech, které studujete.  Celý dotazník je v ostatních
+ohledech zcela anonymní. Pokud kredit nepotřebujete nebo nestudujete na ÚJABL FF MUNI, tak formulář vyplňte libovolným jménem a číslem.</p>
+
+<p>Testování začne krátkou fází, ve které je na příkladech vysvětleno, co máte v experimentu dělat. Každý příklad v přípravné fázi má správnou odpověď. Po třech příkladech začne samotný experiment.</p>
 
 <table>
-<tr>
-<td colspan="2" style="width: 30em; padding-bottom: 1em;">
-<i>(The form below is just a rough example showing all of the input controls that work properly
-with Ibex. Obviously it would not necessarily be appropriate to collect all of this
-data on subjects.)</i>
-</td>
-</tr>
-<tr>
-  <td>Name:</td><td><input name="name" type="text" size="30" class="obligatory" /></td>
-</tr>
-<tr>
-<td colspan="2"><label class="error" for="name"></label></td>
-</tr>
-<tr>
-  <td>Age:</td><td><input name="age" type="text" size="30" class="obligatory" /></td>
-</tr>
-<tr>
-<td colspan="2"><label class="error" for="age"></label></td>
-</tr>
-<tr>
-  <td>Sex:</td><td><input name="sex" type="radio" value="male" class="obligatory" id="csexmale" /><label for="csexmale">Male </label>
-                   <input name="sex" type="radio" value="female" id="csexfemale"/><label for="csexfemale"> Female</label>
-</tr>
-<tr>
-<td colspan="2"><label class="error" for="sex"></label></td>
-</tr>
-<tr>
-<td colspan="2" style="padding-bottom: 1em;"><input type="checkbox" name="credit" id="creditcx" /><label for="creditcx"> I am doing this experiment for credit</label></td>
-</tr>
-<tr>
-<td colspan="2" style="padding-bottom: 1em;"><input type="checkbox" class="obligatory" name="consent" id="consentcx" /><label for="consentcx"> I consent</label></td>
-</tr>
-<tr>
-<td colspan="2">
-<label class="error" for="consent"></label>
-</td>
-</tr>
-<tr>
-  <td colspan="2">Write something:</td>
-</tr>
-<tr>
-  <td colspan="2">
-    <textarea name="write_something" rows="5" cols="40"></textarea>
-  </td>
-</tr>
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td colspan="2"><label class="error" for="native"></label><br>
+      </td>
+    <tr>
+    <td colspan="2" style="padding-bottom: 1em;">Jméno:</td>
+    </tr>
+      <td colspan="2"><input name="name" size="45" class="obligatory" type="text"></td>
+    <tr>
+      <td style="vertical-align: top;"><br>
+      </td>
+      <td colspan="2"><label class="error" for="name"></label><br>
+      </td>
+    </tr>
+    <!-- <tr>
+    <td>Pohlaví:</td><td><input name="Pohlavi" type="text" size="30" class="obligatory" /></td>
+  </tr>
+    <tr>
+    <td>Věk:</td><td><input name="Vek" type="text" size="30" class="obligatory" /></td>
+  </tr>
+    <tr>
+    <td>Obec:</td><td><input name="Obec" type="text" size="30" class="obligatory" /></td>
+  </tr> -->
+  </tbody>
+</table>
+<table>
+  <tbody>
+    <tr>
+    <tr>
+      <td colspan="2" style="padding-bottom: 1em;">IS číslo:</td>
+    </tr>
+      <td colspan="2"><input name="snumber" size="45" class="obligatory" type="text"></td>
+    <tr>
+      <td colspan="2" style="vertical-align: top;"><br>
+      </td>
+      <td colspan="2"><label class="error" for="snumber"></label><br>
+      </td>
+    </tr>
+  </tbody>
 </table>
 
 </div>

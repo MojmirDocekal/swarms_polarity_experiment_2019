@@ -1,156 +1,112 @@
-var shuffleSequence = seq("intro", sepWith("sep", seq("practice", rshuffle("s1", "s2"))), sepWith("sep", rshuffle("q1", "q2")));
-var practiceItemTypes = ["practice"];
+var shuffleSequence = seq("intro", sepWith("sep",  seq("practice")), "practiceover", sepWith("sep", rshuffle(startsWith("first-item"), startsWith("filler"))));
+
+var continueMessage = ["Klikni zde"];
+
+var aj = "AcceptabilityJudgment";
+
+var q = "Question";
+
+var completionMessage = "[Zadané odpovědi jsou odeslány na server. Děkujeme za spolupráci! Nyní  můžete okno zavřít.]";
+
+var ms = "Message";
 
 var defaults = [
-    "Separator", {
-        transfer: 1000,
-        normalMessage: "Please wait for the next sentence.",
-        errorMessage: "Wrong. Please wait for the next sentence."
-    },
-    "DashedSentence", {
-        mode: "self-paced reading"
-    },
-    "AcceptabilityJudgment", {
-        as: ["1", "2", "3", "4", "5", "6", "7"],
-        presentAsScale: true,
-        instructions: "Use number keys or click boxes to answer.",
-        leftComment: "(Bad)", rightComment: "(Good)"
-    },
-    "Question", {
-        hasCorrect: true
-    },
-    "Message", {
-        hideProgressBar: true
-    },
-    "Form", {
-        hideProgressBar: true,
-        continueOnReturn: true,
-        saveReactionTime: true
-    }
+    "Separator", { transfer: 800,
+                   normalMessage: "Počkejte prosím na další položku v experimentu.",
+                   errorMessage: "Špatně. Počkejte prosím na další položku v experimentu."
+         },
+    "AcceptabilityJudgment", { as: ["1", "2", "3", "4", "5"],
+                               presentAsScale: true,
+                               leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)" },
+    "Message", { hideProgressBar: true, transfer: "click" }
 ];
 
-var items = [
+ var progressBarText = "";
 
-    // New in Ibex 0.3-beta-9. You can now add a '__SendResults__' controller in your shuffle
-    // sequence to send results before the experiment has finished. This is NOT intended to allow
-    // for incremental sending of results -- you should send results exactly once per experiment.
-    // However, it does permit additional messages to be displayed to participants once the
-    // experiment itself is over. If you are manually inserting a '__SendResults__' controller into
-    // the shuffle sequence, you must set the 'manualSendResults' configuration variable to 'true', since
-    // otherwise, results are automatically sent at the end of the experiment.
-    //
-    //["sr", "__SendResults__", { }],
+var items = [ ["sep", "Separator", { }],
 
-    ["sep", "Separator", { }],
+          ["intro", "Form", {continueMessage: "Pro vstup do experimentu klikněte zde", html: { include: "example_intro.html" }}],
 
-    // New in Ibex 0.3-beta19. You can now determine the point in the experiment at which the counter
-    // for latin square designs will be updated. (Previously, this was always updated upon completion
-    // of the experiment.) To do this, insert the special '__SetCounter__' controller at the desired
-    // point in your running order. If given no options, the counter is incremented by one. If given
-    // an 'inc' option, the counter is incremented by the specified amount. If given a 'set' option,
-    // the counter is set to the given number. (E.g., { set: 100 }, { inc: -1 })
-    //
-    //["setcounter", "__SetCounter__", { }],
 
-    // NOTE: You could also use the 'Message' controller for the experiment intro (this provides a simple
-    // consent checkbox).
+["practice", aj, {s: {html: "<p>Kontext: Aleš si právě přečetl v novinách následující větu: </p><p><b>Ve městě Er žádný člověk není ve věku mezi 20 a 30 roky.</b></p><p> a komentuje to. </p> <p> Alešův komentář: 'Takže někteří obyvatelé města Er jsou ve věku 21 nebo 22 let.'</p><p>Vaším úkolem v experimentu bude na škále 1 (Alešův komentář je naprosto v rozporu s větou) až 5 (Alešův komentář je naprosto v souladu s větou) ohodnotit vhodnost Alešova komentáře vůči původní větě. Alešův komentář ukazuje, že původní větu špatně pochopil; vyberte jako odpověď jednu z možností v levém konci škály (nejspíš 1).</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
 
-    ["intro", "Form", {
-        html: { include: "example_intro.html" },
-        validators: {
-            age: function (s) { if (s.match(/^\d+$/)) return true; else return "Bad value for \u2018age\u2019"; }
-        }
-    } ],
+  ["practice", aj, {s: {html: "<p>Kontext: Aleš zaslechl v ranních zprávách následující větu: </p><p><b>Každý ministr země Sol má dva vlastní tiskové mluvčí a žádný mluvčí není společný.</b></p><p> a komentuje to. </p> <p> Alešův komentář: 'Jestli má vláda v Sol 10 ministrů, tak má ta vláda dohromady 20 tiskových mluvčích.'</p><p>Znovu musíte ohodnoti na škále 1..5 vhodnost Alešova komentáře. V tomto příkladu Alešův komentář ukazuje, že původní větu pochopil naprosto správně; vyberte jako odpověď jednu z možností v pravém konci škály (nejspíš 5).</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
 
-    //
-    // Three practice items for self-paced reading (one with a comprehension question).
-    //
-    ["practice", "DashedSentence", {s: "This is a practice sentence to get you used to reading sentences like this."}],
-    ["practice", "DashedSentence", {s: "This is another practice sentence with a practice question following it."},
-                 "Question", {hasCorrect: false, randomOrder: false,
-                              q: "How would you like to answer this question?",
-                              as: ["Press 1 or click here for this answer.",
-                                   "Press 2 or click here for this answer.",
-                                   "Press 3 or click here for this answer."]}],
-    ["practice", "DashedSentence", {s: "This is the last practice sentence before the experiment begins."}],
+  ["practice", aj, {s: {html: "<p>Kontext: Aleš si přečetl v jednom starém románu následující větu: </p><p><b>Ti tři rytíři si koupili každý dva koně.</b></p><p> a komentuje to. </p> <p> Alešův komentář: 'Tak to měli ti rytíři dohromady sedm koní.'</p><p>Znovu musíte ohodnoti na škále 1..5 vhodnost Alešova komentáře. V tomto příkladu Alešův komentář ukazuje, že původní větu pochopil naprosto špatně; vyberte jako odpověď jednu z možností v levém konci škály (nejspíš 1).</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
 
-    //
-    // Two "real" (i.e. non-filler) self-paced reading items with corresponding acceptability judgment items.
-    // There are two conditions.
-    //
+["practiceover", "Message", {continueMessage: "Klikněte zde pro pokračování experimentu", html: ["div", ["p", "Zde končí přípravná část experimentu. Klikněte níže pro vstup do experimentu."]]}],
 
-    [["s1",1], "DashedSentence", {s: "The journalist interviewed an actress who he knew to be shy of publicity after meeting on a previous occasion."},
-               "Question",       {q: "The actress was:", as: ["shy", "publicity-seeking", "impatient"]}],
-    [["s2",1], "DashedSentence", {s: "The journalist interviewed an actress who after meeting on a previous occasion he knew to be shy of publicity."},
-               "Question",       {q: "The actress was:", as: ["shy", "publicity-seeking", "impatient"]}],
+[["first-item1-at-most", 1], aj, {s: {html: "<p>Kontext: Aleš čte na obalu potravin následující větu: </p><p><b>Toto balení může obsahovat nanejvýš 100 gramů cukru.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže v tom jídle se občas může objevit i 110 gramů cukru.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
 
-    // The first question will be chosen if the first sentence from the previous two items is chosen;
-    // the second question will be chosen if the second sentence from the previous pair of items is chosen.
-    [["q1",[100,1]], "AcceptabilityJudgment", {s: "Which actress did the journalist interview after meeting her PA on a previous occasion?"}],
-    [["q2",[100,1]], "AcceptabilityJudgment", {s: "Which actress did the journalist interview her husband after meeting on a previous occasion?"}],
+  [["first-item1-no-more", 1], aj, {s: {html: "<p>Kontext: Aleš čte na obalu potravin následující větu: </p><p><b>Toto balení může obsahovat ne víc než 100 gramů cukru.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže v tom jídle se občas může objevit i 110 gramů cukru.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
 
-    [["s1",2], "DashedSentence", {s: "The teacher helped struggling students who he encouraged to succeed without treating like idiots."},
-               "Question",       {q: "What did the teacher do?",
-                                  as: ["Encourage struggling students to succeed",
-                                       "Encourage his best students to succeed",
-                                       "Treat struffling students like idiots"]}],
-    [["s2",2], "DashedSentence", {s: "The teacher helped struggling students who without treating like idiots he encouraged to succeed."},
-               "Question",       {q: "What did the teacher do?", as: ["Encourage struggling students to succeed",
-                                                                      "Encourage his best students to succeed",
-                                                                      "Treat struggling students like idiots"]}],
+  [["first-item1-fewer", 1], aj, {s: {html: "<p>Kontext: Aleš čte na obalu potravin následující větu: </p><p><b>Toto balení může obsahovat méně než 100 gramů cukru.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže v tom jídle se občas může objevit i 110 gramů cukru.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
 
-    [["q1",[200,2]], "AcceptabilityJudgment", {s: {html: "<b>Which struggling students</b> did the teacher encourage to succeed without treating their friends like idiots?"}}],
-    [["q2",[200,2]], "AcceptabilityJudgment", {s: {html: "<b>Which struggling students</b> did the teacher encourage their friends to succeed without treating like idiots?"}}],
+[["first-item2-at-most", 2], aj, {s: {html: "<p>Kontext: Aleš čte na stojanu u benzínové pumpy následující větu: </p><p><b>Litr benzínu Ropák může obsahovat nanejvýš 0.5 gramu olova.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže v Ropákovi se občas může objevit i 0.6 gramu olova na litr.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
 
-    //
-    // 10 self-paced-reading filler sentences.
-    //
+    [["first-item2-no-more", 2], aj, {s: {html: "<p>Kontext: Aleš čte na stojanu u benzínové pumpy následující větu: </p><p><b>Litr benzínu Ropák může obsahovat ne víc než 0.5 gramu olova.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže v Ropákovi se občas může objevit i 0.6 gramu olova na litr.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
 
-    ["f", "DashedSentence", {s: "The foreign spy that encoded the top-secret messages was given a new mission that required going to Japan."},
-          "Question",       {q: "The spy's mission required him to:", as: ["Go to Japan", "Destroy top-secret messages", "Bug a hotel room"]}],
+    [["first-item2-fewer", 2], aj, {s: {html: "<p>Kontext: Aleš čte na stojanu u benzínové pumpy následující větu: </p><p><b>Litr benzínu Ropák může obsahovat méně než 0.5 gramu olova.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže v Ropákovi se občas může objevit i 0.6 gramu olova na litr.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
 
-    ["f", "DashedSentence", {s: "The receptionist that the real estate company just hired immediately familiarized herself with all the phone numbers of their clients."},
-          "Question",       {q: "The receptionist familiarized herself with:",
-                             as: ["Some phone numbers",
-                                  "The health and safety regulations",
-                                  "Her boss"]}],
+[["first-item3-at-most", 3], aj, {s: {html: "<p>Kontext: Aleš čte místní vyhlášku upravující provoz mopedů na rychlostní silnici, vidí v ní tuto větu: </p><p><b>Řidič mopedu má dovoleno jet nanejvýš 70 km/h.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže řidiči rychlejších mopedů mohou na téhle rychlostní silnici jet i 80 km/h.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
 
-    ["f", "DashedSentence", {s: "Only two specialized surgeons that work in the hospital could do this operation."},
-          "Question",       {q: "The operation can be performed by:",
-                             as: ["Two surgeons with specialist training",
-                                  "All the surgeons at the hospital",
-                                  "Three surgeons who are currently off sick"]}],
+    [["first-item1-no-more", 3],aj, {s: {html: "<p>Kontext: Aleš čte místní vyhlášku upravující provoz mopedů na rychlostní silnici, vidí v ní tuto větu: </p><p><b>Řidič mopedu má dovoleno jet ne víc než 70 km/h.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže řidiči rychlejších mopedů mohou na téhle rychlostní silnici jet i 80 km/h.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
 
-    ["f", "DashedSentence", {s: "The gangsters that the local police officers tracked for years were represented by an inexperienced lawyer."},
-          "Question",       {q: "Who did the inexperienced lawyer represent?",
-                             as: ["Some gangsters", "Some local police officers", "A murder suspect"]}],
+    [["first-item1-fewer", 3], aj, {s: {html: "<p>Kontext: Aleš čte místní vyhlášku upravující provoz mopedů na rychlostní silnici, vidí v ní tuto větu: </p><p><b>Řidič mopedu má dovoleno jet méně než 70 km/h.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže řidiči rychlejších mopedů mohou na téhle rychlostní silnici jet i 80 km/h.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
 
-    ["f", "DashedSentence", {s: "The woman that John had seen in the subway bought herself a pair of stunning shoes that cost a fortune."},
-          "Question",       {q: "Where did John see the woman?", as: ["In the subway", "On the bus", "In the shoe shop"]}],
+[["first-item4-at-most", 4], aj, {s: {html: "<p>Kontext: Aleš si čte vyhlášku odborů revizorů v městské hromadné dopravě, kde stojí následující věta:  </p><p><b>Revizor má dovoleno zkontrolovat nanejvýš 50 cestujících denně.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže pilný revizor může zkontrolovat i 60 nebo víc cestujících denně.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
 
-    ["f", "DashedSentence", {s: "If the award-winning chef had entered this competition, he surely would have won first prize."},
-          "Question",       {q: "Why didn't the chef win the competition?",
-                             as: ["Because he didn't enter it",
-                                  "Because his food wasn't good enough.",
-                                  "Because he was kicked out for cheating."]}],
+    [["first-item4-no-more", 4], aj, {s: {html: "<p>Kontext: Aleš si čte vyhlášku odborů revizorů v městské hromadné dopravě, kde stojí následující věta:  </p><p><b>Revizor má dovoleno zkontrolovat ne víc než 50 cestujících denně.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže pilný revizor může zkontrolovat i 60 nebo víc cestujících denně.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
 
-    ["f", "DashedSentence", {s: "If the organized secretary had filed the documents when she first received them, they would have been easy to find."},
-          "Question",       {q: "Why were the documents difficult to find?",
-                             as: ["Because the secretary hadn't filed them properly",
-                                  "Because a manager at the company had lost them",
-                                  "Because they had been stolen."]}],
+    [["first-item4-fewer", 4], aj, {s: {html: "<p>Kontext: Aleš si čte vyhlášku odborů revizorů v městské hromadné dopravě, kde stojí následující věta:  </p><p><b>Revizor má dovoleno zkontrolovat méně než 50 cestujících denně.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže pilný revizor může zkontrolovat i 60 nebo víc cestujících denně.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
 
-    ["f", "DashedSentence", {s: "If the homemade beer had been left to ferment more, it would have been drinkable."},
-          "Question",       {q: "Why wasn't the homemade beer drinkable?",
-                             as: ["It hadn't been left to ferment long enough",
-                                  "It had been left to ferment too long",
-                                  "The ingredients had been measured incorrectly."]}],
+[["first-item5-at-most", 5], aj, {s: {html: "<p>Kontext: Aleš si čte studijní řád Miskatonické univerzity, kde vidí následující větu: </p><p><b>Bakalářská práce může mít nanejvýš 50 tisíc znaků.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže některé bakalářské práce na Miskatonické univerzitě mohou mít i 60 tisíc znaků.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
 
-    ["f", "DashedSentence", {s: "The cowboy that the bulls tried to trample injured himself getting off a horse."}],
+    [["first-item5-no-more", 5], aj, {s: {html: "<p>Kontext: Aleš si čte studijní řád Miskatonické univerzity, kde vidí následující větu: </p><p><b>Bakalářská práce může mít ne víc než 50 tisíc znaků.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže některé bakalářské práce na Miskatonické univerzitě mohou mít i 60 tisíc znaků.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
 
-    ["f", "DashedSentence", {s: "The patient that was admitted to the hospital last month still suffers severe pain in his left leg."},
-          "Question",       {q: "Which of the following is true?",
-                             as: ["The patient still has severe pain in his left leg",
-                                  "The patient still has severe pain in his right leg",
-                                  "The patient no longer suffers from pain in his left leg"]}]
+    [["first-item5-fewer", 5],  aj, {s: {html: "<p>Kontext: Aleš si čte studijní řád Miskatonické univerzity, kde vidí následující větu: </p><p><b>Bakalářská práce může mít méně než 50 tisíc znaků.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže některé bakalářské práce na Miskatonické univerzitě mohou mít i 60 tisíc znaků.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
+
+[["first-item6-at-most", 6], aj, {s: {html: "<p>Kontext: Aleš listuje v odborových vyhláškách pro  pomocný personál v mrakodrapu GD, kde vidí následující větu: </p><p><b>Uklízečka v GD má dovoleno za den uklidit nanejvýš 10 kanceláří.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže některé pilnější uklízečky v GD mohou za den uklidit i 12 kanceláří.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
+
+    [["first-item6-no-more", 6], aj, {s: {html: "<p>Kontext: Aleš listuje v odborových vyhláškách pro  pomocný personál v mrakodrapu GD, kde vidí následující větu: </p><p><b>Uklízečka v GD má dovoleno za den uklidit ne víc než 10 kanceláří.</b></p><p>, a komentuje to.</p><p>Alešův komentář: 'Takže některé pilnější uklízečky v GD mohou za den uklidit i 12 kanceláří.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
+
+    [["first-item6-fewer", 6], aj, {s: {html: "<p>Kontext: Aleš listuje v odborových vyhláškách pro pomocný personál v mrakodrapu GD, kde vidí následující větu: </p><p><b>Uklízečka v GD má dovoleno za den uklidit méně než 10 kanceláří.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže některé pilnější uklízečky v GD mohou za den uklidit i 12 kanceláří.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
+
+[["first-item7-at-most", 7], aj, {s: {html: "<p>Kontext: Aleš si čte v novinách předpověď počasí na zítra a vidí tam následující větu: </p><p><b>Zítra může napršet nanejvýš 10 mm srážek.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže zítra možná naprší i 20 mm.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
+
+    [["first-item7-no-more", 7], aj, {s: {html: "<p>Kontext: Aleš si čte v novinách předpověď počasí na zítra a vidí tam následující větu: </p><p><b>Zítra může napršet ne víc než 10 mm srážek.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže zítra možná naprší i 20 mm.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
+
+    [["first-item7-fewer", 7],  aj, {s: {html: "<p>Kontext: Aleš si čte v novinách předpověď počasí na zítra a vidí tam následující větu: </p><p><b>Zítra může napršet méně než 10 mm srážek.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže zítra možná naprší i 20 mm.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
+
+[["first-item8-at-most", 8], aj, {s: {html: "<p>Kontext: Aleš si čte instrukce týkající se jubilejního dálkového pochodu z města Er a vidí tam následující větu: </p><p><b>Účastníci jubilejního dálkového pochodu mohou ujít nanejvýš 40 km.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže někteří účastníci toho pochodu mohou ujít i 50 km.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
+
+    [["first-item8-no-more", 8], aj, {s: {html: "<p>Kontext: Aleš si čte instrukce týkající se jubilejního dálkového pochodu z města Er a vidí tam následující větu: </p><p><b>Účastníci jubilejního dálkového pochodu mohou ujít ne víc než 40 km.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže někteří účastníci toho pochodu mohou ujít i 50 km.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
+
+    [["first-item8-fewer", 8], aj, {s: {html: "<p>Kontext: Aleš si čte instrukce týkající se jubilejního dálkového pochodu z města Er a vidí tam následující větu: </p><p><b>Účastníci jubilejního dálkového pochodu mohou ujít méně než 40 km.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže někteří účastníci toho pochodu mohou ujít i 50 km.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
+
+[["first-item9-at-most", 9], aj, {s: {html: "<p>Kontext: Aleš si čte interní zprávu upravující personální politiku ve firmě EB, kde stojí následující věta: </p><p><b>Firma EB může tento rok propustit nanejvýš 100 zaměstnanců.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže tento rok v EB propustí možná i 110 zaměstnanců.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
+
+    [["first-item9-no-more", 9], aj, {s: {html: "<p>Kontext: Aleš si čte interní zprávu upravující personální politiku ve firmě EB, kde stojí následující věta: </p><p><b>Firma EB může tento rok propustit ne víc než 100 zaměstnanců.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže tento rok v EB propustí možná i 110 zaměstnanců.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
+
+    [["first-item9-fewer", 9], aj, {s: {html: "<p>Kontext: Aleš si čte interní zprávu upravující personální politiku ve firmě EB, kde stojí následující věta: </p><p><b>Firma EB může tento rok propustit méně než 100 zaměstnanců.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže tento rok v EB propustí možná i 110 zaměstnanců.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
+
+["filler1-good", aj, {s: {html: "<p>Kontext: Aleš si právě přečetl v novinách následující větu: </p><p><b>Tři současní čeští básníci napsali každý právě jednu knihu básní.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže ti tři básníci napsali tři knihy básní, co básník -- to knížka.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
+
+["filler2-bad", aj, {s: {html: "<p>Kontext: Aleš čte o na webových stránkách města Er následující větu: </p><p><b>Radnice města Er je vysoká 40 metrů a každá budova v městě Er je nižší než výška radnice.</b></p><p> a komentuje to. </p><p>Alešův komentář: 'Takže některé budovy v městě Er mají 45 metrů a víc.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
+
+["filler3-good", aj, {s: {html: "<p>Kontext: Aleš si čte v novinách o korunovaci královny a vidí tam následující větu: </p><p><b>Ne každý státník přiletěl letadlem.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže někteří státníci dorazili na korunovaci jinak než letadlem.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
+
+["filler4-bad", aj, {s: {html: "<p>Kontext: Aleš si právě v univerzitních novinách přečetl větu: </p><p><b>Každý student na filozofické fakultě přečetl maximálně 20 knih.</b></p><p> a komentuje to. </p><p>Alešův komentář: 'Takže každý student na filozofické fakultě přečetl 21 nebo víc knih.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
+
+["filler5-good", aj, {s: {html: "<p>Kontext: Aleš si právě přečetl v novinách následující větu: </p><p><b>Průměrný obyvatel města Er vlastní 2.5 kočky.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže někteří obyvatelé v Er mají dvě kočky nebo míň, ale někteří mají tři kočky nebo víc.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
+
+["filler6-bad", aj, {s: {html: "<p>Kontext: Aleš si právě přečetl v novinách, že </p><p><b> Průměrný obyvatel města Er si vloni nepřečetl ani jednu knížku.</b></p><p> a komentuje to. </p><p>Alešův komentář: 'Takže průměrný obyvatel města Er si vloni přečetl dvě a více knížek''</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
+
+["filler7-good", aj, {s: {html: "<p>Kontext: Aleš si čte statistickou zprávu o zemi Er a v ní je následující věta: </p><p><b>Každý obyvatel země Er vlastní maximálně 3 kola.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže žádný obyvatel země Er nevlastní 4 kola.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
+
+["filler8-bad", aj, {s: {html: "<p>Kontext: Aleš si čte na Wikipedii o vzdálené sluneční soustavě Solaris a vidí větu: </p><p><b>V soustavě Solaris má každá planeta maximálně 3 měsíce.</b></p><p> a komentuje to. </p><p>Alešův komentář: 'Takže některé planety v soustavě Solaris mají 4 nebo více měsíců.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
+
+["filler9-good", aj, {s: {html: "<p>Kontext: Aleš si čte technickou zprávu o výtahu K, ve které je následující věta </p><p><b>Výtah K uveze i 5 pasažérů.</b></p><p> a komentuje to.</p><p>Alešův komentář: 'Takže výtah K rozhodně uveze 4 pasažéry.'</p>"}, leftComment: "(Alešův komentář je naprosto v rozporu s větou)", rightComment: "(Alešův komentář je naprosto v souladu s větou)"}],
+
+
 ];
